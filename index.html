@@ -8,58 +8,26 @@
 <script>
 !function(f,b,e,v,n,t,s){
 if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+n.callMethod.apply(n,arguments):n.queue.push(arguments)}; 
 if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)
+n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
+s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)
 }(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 
-fbq('init', 'YOUR_PIXEL_ID');
+fbq('init', 'YOUR_PIXEL_ID'); // Replace with your Meta Pixel ID
 fbq('track', 'PageView');
 </script>
 
 <style>
 body { margin:0; font-family:sans-serif; text-align:center; }
-
-#tour-container {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-}
-
-iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  filter: blur(12px);
-}
-
-#overlay {
-  position: absolute;
-  top:0; left:0;
-  width:100%; height:100%;
-  background: rgba(0,0,0,0.6);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  color:white;
-}
-
-input {
-  padding:10px;
-  margin:5px;
-  width:250px;
-}
-
-button {
-  padding:12px 20px;
-  margin-top:10px;
-  font-size:16px;
-  cursor:pointer;
-}
+#tour-container { position: relative; width: 100%; height: 100vh; }
+iframe { width: 100%; height: 100%; border: none; filter: blur(12px); }
+#overlay { position: absolute; top:0; left:0; width:100%; height:100%; 
+  background: rgba(0,0,0,0.6); display:flex; justify-content:center; 
+  align-items:center; flex-direction:column; color:white; }
+input { padding:10px; margin:5px; width:250px; }
+button { padding:12px 20px; margin-top:10px; font-size:16px; cursor:pointer; }
 </style>
 </head>
 
@@ -68,8 +36,8 @@ button {
 <div id="tour-container">
 
   <iframe id="tour"
-    src="YOUR_KUULA_EMBED_LINK">
-  </iframe>
+    src="YOUR_KUULA_EMBED_LINK"  <!-- Replace with full Kuula link -->
+  ></iframe>
 
   <div id="overlay">
     <h2>Unlock Full 3D Tour</h2>
@@ -85,9 +53,7 @@ button {
 
 <br>
 
-<button onclick="goWhatsApp()">
-  Send Message on WhatsApp
-</button>
+<button onclick="goWhatsApp()">Send Message on WhatsApp</button>
 
 <script>
 function unlockTour() {
@@ -103,20 +69,21 @@ function unlockTour() {
   // Meta Lead Event
   fbq('track', 'Lead');
 
-  // Send to n8n
-  fetch("YOUR_N8N_WEBHOOK", {
+  // Send to n8n webhook
+  fetch("YOUR_N8N_WEBHOOK_URL", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ name, phone, revenue })
-  });
+  }).catch(console.error);
 
-  // Remove blur + overlay
-  document.getElementById('tour').style.filter = "none";
+  // Unlock the tour
+  const iframe = document.getElementById('tour');
+  iframe.style.filter = "none";
   document.getElementById('overlay').style.display = "none";
 }
 
 function goWhatsApp() {
-  window.location.href = "https://wa.me/201035572531";
+  window.open("https://wa.me/201035572531", "_blank");
 }
 </script>
 
