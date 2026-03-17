@@ -1,39 +1,285 @@
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D Tour Access</title>
 
-#iframe {
-  height: 100vh;
-}
+  <style>
+    :root {
+      --overlay-bg: rgba(0, 0, 0, 0.65);
+      --panel-bg: rgba(255, 255, 255, 0.08);
+      --panel-border: rgba(255, 255, 255, 0.18);
+      --text: #fff;
+      --accent: #22c55e;
+      --accent-text: #06210f;
+      --header-height: 64px;
+      --post-cta-height: 66px;
+    }
 
-.header,
-#whatsapp-bar {
-  display: none;
-}
+    * { box-sizing: border-box; }
 
-.unlocked .header,
-.unlocked #whatsapp-bar {
-  display: block;
-}
+    html, body { height: 100%; }
 
-.tour-container {
-  height: calc(100vh - var(--header-height) - var(--post-cta-height));
-}
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #000;
+      color: var(--text);
+      overflow: hidden;
+    }
 
-@media screen and (max-width: 600px) {
-  .overlay-card input {
-    display: block;
-    width: 100%;
-  }
-  .post-cta {
-    white-space: normal;
-  }
-}
+    /* Header shown AFTER unlock */
+    header {
+      height: var(--header-height);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.6);
+      position: relative;
+      z-index: 20;
+    }
+
+    body.unlocked header { display: flex; }
+
+    header .headline {
+      width: min(980px, 96vw);
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    /* WhatsApp CTA shown AFTER unlock */
+    .post-cta {
+      padding: 10px 16px;
+      display: none;
+      justify-content: center;
+      background: rgba(0,0,0,0.55);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      position: relative;
+      z-index: 20;
+    }
+
+    body.unlocked .post-cta { display: flex; }
+
+    .post-cta .wrap {
+      width: min(980px, 96vw);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .post-cta .text {
+      font-size: 14px;
+      opacity: 0.9;
+      text-align: left;
+      line-height: 1.2;
+    }
+
+    button {
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+      white-space: nowrap;
+    }
+
+    #whatsAppBtn {
+      background: #111827;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    /* Tour area */
+    #tour-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+    }
+
+    body.unlocked #tour-container {
+      height: calc(100vh - var(--header-height) - var(--post-cta-height));
+    }
+
+    #tour {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      filter: blur(12px);
+      transform: scale(1.02);
+    }
+
+    body.unlocked #tour {
+      filter: none;
+      transform: none;
+    }
+
+    /* Full-screen overlay shown BEFORE unlock */
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--overlay-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      z-index: 30;
+    }
+
+    .card {
+      width: min(520px, 92vw);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 22px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+
+    .card p {
+      margin: 0 0 14px;
+      opacity: 0.9;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .card input {
+      width: 100%;
+      max-width: 360px;
+      padding: 12px 14px;
+      margin: 6px 0;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      outline: none;
+    }
+
+    .card input::placeholder { color: rgba(255,255,255,0.65); }
+
+    #viewTourBtn {
+      background: var(--accent);
+      color: var(--accent-text);
+      width: 100%;
+      max-width: 360px;
+      margin-top: 10px;
+    }
+
+    #hint {
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: 0.75;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 600px) {
+      :root {
+        --header-height: 56px;
+        --post-cta-height: 96px;
+      }
+
+      .post-cta .wrap { flex-direction: column; align-items: stretch; }
+      .post-cta .text { text-align: center; }
+      #whatsAppBtn { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="headline">Headline goes here</div>
+  </header>
+
+  <div class="post-cta">
+    <div class="wrap">
+      <div class="text">Have questions? Message us on WhatsApp.</div>
+      <button id="whatsAppBtn" type="button">WhatsApp</button>
+    </div>
+  </div>
+
+  <div id="tour-container">
+    <iframe id="tour" src="about:blank" title="3D Tour"></iframe>
+
+    <div id="overlay">
+      <div class="card">
+        <h2>Unlock Full 3D Tour</h2>
+        <p><strong>Name</strong> and <strong>Phone</strong> are required to view the tour.</p>
+
+        <input type="text" id="name" placeholder="Your Name" required />
+        <input type="tel" id="phone" placeholder="Phone Number" required />
+        <input type="text" id="revenue" placeholder="Monthly Revenue (optional)" />
+
+        <button id="viewTourBtn" type="button">See Tour</button>
+        <div id="hint"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const KUULA_EMBED_LINK = 'https://kuula.co/share/collection/7Mqjy?logo=1&info=1&fs=1&vr=0&sd=1&gyro=0&thumbs=-1';
+    const N8N_WEBHOOK_URL = '';
+    const WHATSAPP_NUMBER = '201035572531';
+
+    const iframe = document.getElementById('tour');
+    const hint = document.getElementById('hint');
+    const overlay = document.getElementById('overlay');
+
+    if (KUULA_EMBED_LINK) {
+      iframe.src = KUULA_EMBED_LINK;
+      hint.textContent = '';
+    } else {
+      hint.textContent = 'Admin note: KUULA_EMBED_LINK is not set yet. The tour iframe will be blank until you add it.';
+    }
+
+    async function unlockTour() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const revenue = document.getElementById('revenue').value.trim();
+
+      if (!name || !phone) {
+        alert('Enter name and phone');
+        return;
+      }
+
+      if (N8N_WEBHOOK_URL) {
+        try {
+          await fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, revenue }),
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      document.body.classList.add('unlocked');
+      overlay.classList.add('hidden');
+    }
+
+    function goWhatsApp() {
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
+    }
+
+    document.getElementById('viewTourBtn').addEventListener('click', unlockTour);
+    document.getElementById('whatsAppBtn').addEventListener('click', goWhatsApp);
+  </script>
+</body>
+</html>
