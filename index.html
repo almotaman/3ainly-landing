@@ -1,91 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>3D Tour Access</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D Tour Access</title>
 
-<!-- Meta Pixel -->
-<script>
-!function(f,b,e,v,n,t,s){
-if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)}; 
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
-s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)
-}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
+  <!-- Meta Pixel (safe if not configured yet) -->
+  <script>
+    (function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n.loaded = !0;
+      n.version = '2.0';
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
-fbq('init', 'YOUR_PIXEL_ID'); // Replace with your Meta Pixel ID
-fbq('track', 'PageView');
-</script>
+    // If you haven't set a Pixel ID yet, leave PIXEL_ID empty and events will be skipped.
+    const PIXEL_ID = '';
+    if (PIXEL_ID) {
+      fbq('init', PIXEL_ID);
+      fbq('track', 'PageView');
+    }
+  </script>
 
-<style>
-body { margin:0; font-family:sans-serif; text-align:center; }
-#tour-container { position: relative; width: 100%; height: 100vh; }
-iframe { width: 100%; height: 100%; border: none; filter: blur(12px); }
-#overlay { position: absolute; top:0; left:0; width:100%; height:100%; 
-  background: rgba(0,0,0,0.6); display:flex; justify-content:center; 
-  align-items:center; flex-direction:column; color:white; }
-input { padding:10px; margin:5px; width:250px; }
-button { padding:12px 20px; margin-top:10px; font-size:16px; cursor:pointer; }
-</style>
+  <style>
+    :root {
+      --overlay-bg: rgba(0, 0, 0, 0.65);
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      text-align: center;
+      background: #000;
+      color: #fff;
+    }
+
+    #tour-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      filter: blur(12px);
+      transform: scale(1.02);
+    }
+
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--overlay-bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 24px;
+      box-sizing: border-box;
+      gap: 10px;
+    }
+
+    .card {
+      width: min(520px, 92vw);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 16px;
+      padding: 22px;
+      box-sizing: border-box;
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    p {
+      margin: 0 0 14px;
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+
+    input {
+      padding: 12px 14px;
+      margin: 6px 0;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    button {
+      padding: 12px 18px;
+      margin-top: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border: 0;
+      border-radius: 12px;
+      background: #22c55e;
+      color: #06210f;
+      font-weight: 700;
+    }
+
+    button.secondary {
+      background: #111827;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 16px;
+    }
+
+    .small {
+      font-size: 13px;
+      opacity: 0.75;
+      margin-top: 8px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 
 <body>
+  <div id="tour-container">
+    <!-- IMPORTANT: Replace with a real Kuula (or any) embed URL. -->
+    <iframe id="tour" src="about:blank" title="3D Tour"></iframe>
 
-<div id="tour-container">
+    <div id="overlay">
+      <div class="card">
+        <h2>Unlock Full 3D Tour</h2>
+        <p>Enter your details to view the full interactive tour.</p>
 
-  <iframe id="tour"
-    src="YOUR_KUULA_EMBED_LINK"  <!-- Replace with full Kuula link -->
-  ></iframe>
+        <input type="text" id="name" placeholder="Your Name" required />
+        <input type="tel" id="phone" placeholder="Phone Number" required />
+        <input type="text" id="revenue" placeholder="Monthly Revenue (optional)" />
 
-  <div id="overlay">
-    <h2>Unlock Full 3D Tour</h2>
+        <button id="viewTourBtn" type="button">View Tour</button>
+        <div class="small" id="hint"></div>
 
-    <input type="text" id="name" placeholder="Your Name" required>
-    <input type="tel" id="phone" placeholder="Phone Number" required>
-    <input type="text" id="revenue" placeholder="Monthly Revenue (optional)">
-
-    <button onclick="unlockTour()">View Tour</button>
+        <button class="secondary" id="whatsAppBtn" type="button">Send Message on WhatsApp</button>
+      </div>
+    </div>
   </div>
 
-</div>
+  <script>
+    // CONFIG (safe defaults)
+    // Replace these with your real values.
+    const KUULA_EMBED_LINK = ''; // e.g. 'https://kuula.co/share/XXXXX?fs=1&vr=0&sd=1&thumbs=1'
+    const N8N_WEBHOOK_URL = ''; // e.g. 'https://your-n8n.example/webhook/....'
+    const WHATSAPP_NUMBER = '201035572531';
 
-<br>
+    // Initialize iframe src if configured
+    const iframe = document.getElementById('tour');
+    const hint = document.getElementById('hint');
 
-<button onclick="goWhatsApp()">Send Message on WhatsApp</button>
+    if (KUULA_EMBED_LINK) {
+      iframe.src = KUULA_EMBED_LINK;
+    } else {
+      hint.textContent = 'Admin note: KUULA_EMBED_LINK is not set yet. The page will still load, but the tour iframe will be blank until you add it.';
+    }
 
-<script>
-function unlockTour() {
-  const name = document.getElementById('name').value;
-  const phone = document.getElementById('phone').value;
-  const revenue = document.getElementById('revenue').value;
+    function safeFbqTrack(eventName) {
+      try {
+        if (typeof window.fbq === 'function') {
+          window.fbq('track', eventName);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
 
-  if (!name || !phone) {
-    alert("Enter name and phone");
-    return;
-  }
+    async function unlockTour() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const revenue = document.getElementById('revenue').value.trim();
 
-  // Meta Lead Event
-  fbq('track', 'Lead');
+      if (!name || !phone) {
+        alert('Enter name and phone');
+        return;
+      }
 
-  // Send to n8n webhook
-  fetch("YOUR_N8N_WEBHOOK_URL", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ name, phone, revenue })
-  }).catch(console.error);
+      // Meta Lead Event (won't throw if pixel not configured)
+      safeFbqTrack('Lead');
 
-  // Unlock the tour
-  const iframe = document.getElementById('tour');
-  iframe.style.filter = "none";
-  document.getElementById('overlay').style.display = "none";
-}
+      // Send to n8n webhook if configured
+      if (N8N_WEBHOOK_URL) {
+        try {
+          await fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, revenue }),
+          });
+        } catch (e) {
+          // keep UX working even if webhook fails
+          console.error(e);
+        }
+      }
 
-function goWhatsApp() {
-  window.open("https://wa.me/201035572531", "_blank");
-}
-</script>
+      // Unlock the tour
+      iframe.style.filter = 'none';
+      document.getElementById('overlay').classList.add('hidden');
+    }
 
+    function goWhatsApp() {
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
+    }
+
+    document.getElementById('viewTourBtn').addEventListener('click', unlockTour);
+    document.getElementById('whatsAppBtn').addEventListener('click', goWhatsApp);
+  </script>
 </body>
 </html>
